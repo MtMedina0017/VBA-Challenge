@@ -1,0 +1,132 @@
+Sub VBA_Challenge()
+    Dim Ticker As String
+    Dim Year_Open As Double
+    Dim Year_Close As Double
+    Dim Summary_Table_Row As Integer
+    Dim Yearly_Change As Double
+    Dim Volume As Double
+    Dim Total_Stock_Volume As Double
+    Dim ws As Worksheet
+    Dim lastrow As Long
+    Dim i As Long
+    Dim GreatestINCTick As String
+    Dim GreatestDECTick As String
+    Dim GreatestINCVal As Double
+    Dim GreatestDECVal As Double
+    Dim GreatestVolTick As String
+    Dim GreatestVolVal As Double
+    Dim Stock_Row As Double
+    
+For Each ws In Worksheets
+
+    
+    lastrow = ws.Cells(Rows.Count, 1).End(xlUp).Row
+    
+    Stock_Row = 2
+    Summary_Table_Row = 2
+    
+    ws.Range("I1") = "Ticker"
+    ws.Range("J1") = "Yearly_Change"
+    ws.Range("K1") = "Percent_Change"
+    ws.Range("L1") = "Total_Stock_Volume"
+    ws.Range("O2") = "Greatest % Increase"
+    ws.Range("O3") = "Greatest % Decrease"
+    ws.Range("O4") = "Greatest_Total_Volume"
+    ws.Range("P1") = "Ticker"
+    ws.Range("Q1") = "Value"
+        
+    Year_Open = ws.Cells(2, 3).Value
+    GreatestINCVal = 0
+    GreatestDECVal = 0
+    GreatestVolVal = 0
+        
+    For i = 2 To lastrow
+    
+        If ws.Cells(i + 1, 1).Value <> ws.Cells(i, 1).Value Then
+
+            Ticker = ws.Cells(i, 1).Value
+            Volume = ws.Cells(i, 7).Value
+            Total_Stock_Volume = Total_Stock_Volume + ws.Cells(i, 7).Value
+            
+         
+            Year_Close = ws.Cells(i, 6).Value
+                                                                                                                     
+            Yearly_Change = Year_Close - Year_Open
+            
+            
+            Percent_Change = (Yearly_Change / Year_Open) * 100
+                        
+                If GreatestINCVal < Percent_Change Then
+                    GreatestINCVal = Percent_Change
+                    GreatestINCTick = Ticker
+                        
+                    ElseIf GreatestDECVal > Percent_Change Then
+                        GreatestDECVal = Percent_Change
+                        GreatestDECTick = Ticker
+                        
+                    End If
+                    
+                If GreatestVolVal < Total_Stock_Volume Then
+                   GreatestVolVal = Total_Stock_Volume
+                   GreatestVolTick = Ticker
+                   
+                   End If
+                        
+                        
+            ws.Range("I" & Summary_Table_Row).Value = Ticker
+            ws.Range("J" & Summary_Table_Row).Value = Yearly_Change
+            
+                If ws.Range("J" & Summary_Table_Row).Value >= 0 Then
+                
+                    ws.Range("J" & Summary_Table_Row).Interior.ColorIndex = 4
+                Else:
+                    ws.Range("J" & Summary_Table_Row).Interior.ColorIndex = 3
+                                     
+            End If
+            
+            ws.Range("K" & Summary_Table_Row).Value = Percent_Change
+                                  
+                
+            ws.Range("L" & Summary_Table_Row).Value = Total_Stock_Volume
+                      
+            Summary_Table_Row = Summary_Table_Row + 1
+            
+            Total_Stock_Volume = 0
+            
+            Year_Open = ws.Cells(i + 1, 3).Value
+            
+            If Year_Open = 0 Then
+            
+                For Stock_Row = (i + 1) To lastrow
+                
+                    If ws.Cells(Stock_Row, 3).Value <> 0 Then
+                        
+                        Year_Open = ws.Cells(Stock_Row, 3).Value
+                        
+                        Exit For
+                        
+                        End If
+                        
+                    Next Stock_Row
+                        
+                        End If
+            
+            Else
+            
+            Total_Stock_Volume = Total_Stock_Volume + ws.Cells(i, 7).Value
+            
+        End If
+    
+    Next i
+      
+            ws.Range("P2").Value = GreatestINCTick
+            ws.Range("P3").Value = GreatestDECTick
+            ws.Range("P4").Value = GreatestVolTick
+                        
+            ws.Range("Q2").Value = GreatestINCVal
+            ws.Range("Q3").Value = GreatestDECVal
+            ws.Range("Q4").Value = GreatestVolVal
+      
+Next ws
+
+End Sub
